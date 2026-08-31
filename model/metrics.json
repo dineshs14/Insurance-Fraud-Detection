@@ -1,0 +1,62 @@
+{
+  "accuracy": 0.9967,
+  "precision": 0.9636,
+  "recall": 0.9815,
+  "f1_score": 0.9725,
+  "roc_auc": 0.9999,
+  "pr_auc": 0.999,
+  "fpr": 0.0024,
+  "gcpr": 0.9976,
+  "confusion_matrix": [
+    [
+      844,
+      2
+    ],
+    [
+      1,
+      53
+    ]
+  ],
+  "tier_counts": {
+    "Auto-Approve": 845,
+    "Manual Review": 0,
+    "Investigate": 55
+  },
+  "train_size": 3600,
+  "test_size": 900,
+  "total_fraud": 270,
+  "total_legit": 4230,
+  "theta1": 0.3,
+  "theta2": 0.6,
+  "feature_names": [
+    "ClaimAmount",
+    "PatientAge",
+    "PatientGender",
+    "ProviderSpecialty",
+    "ClaimStatus",
+    "PatientIncome",
+    "PatientMaritalStatus",
+    "PatientEmploymentStatus",
+    "ClaimType",
+    "ClaimSubmissionMethod",
+    "Cluster",
+    "ClaimMonth",
+    "ClaimDayOfWeek",
+    "ClaimYear"
+  ],
+  "num_cols": [
+    "ClaimAmount",
+    "PatientAge",
+    "PatientIncome",
+    "Cluster"
+  ],
+  "cat_cols": [
+    "PatientGender",
+    "ProviderSpecialty",
+    "ClaimStatus",
+    "PatientMaritalStatus",
+    "PatientEmploymentStatus",
+    "ClaimType",
+    "ClaimSubmissionMethod"
+  ]
+}

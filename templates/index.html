@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FraudShield AI — Dashboard</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">🛡</div>
+    <div class="logo-text">
+      <h2>FraudShield AI</h2>
+      <p>Insurance Fraud Detection</p>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="/" class="nav-item active"><span class="ni">▦</span> Dashboard</a>
+    <a href="/predict" class="nav-item"><span class="ni">◎</span> Claim Predictor</a>
+    <a href="/batch" class="nav-item"><span class="ni">≡</span> Batch Analysis</a>
+    <a href="/analytics" class="nav-item"><span class="ni">∿</span> Model Analytics</a>
+    <div class="nav-label">Research Gaps</div>
+    <a href="/analytics#gap1" class="nav-item"><span class="ni">⊡</span> Multi-Metric Eval <span class="nav-badge">G1</span></a>
+    <a href="/predict#gap2" class="nav-item"><span class="ni">⊙</span> 3-Tier Routing <span class="nav-badge">G2</span></a>
+    <a href="/predict#gap3" class="nav-item"><span class="ni">⁂</span> SHAP Explain <span class="nav-badge">G3</span></a>
+    <div class="nav-label">Presentation</div>
+    <a href="/demo" class="nav-item nav-demo"><span class="ni">▷</span> Demo Mode</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-chip">
+      <div class="status-dot"></div>
+      <div class="status-text">
+        <strong>Model Active</strong>
+        <span>ROC-AUC {{ "%.4f"|format(metrics.roc_auc) }}</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main-content">
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Fraud Detection Dashboard</h1>
+      <p>Health Insurance · {{ total }} claims · XGBoost + SMOTE</p>
+    </div>
+    <div class="topbar-right">
+      <span class="badge badge-green">● Model Live</span>
+      <a href="/demo" class="btn btn-demo btn-sm">▷ Demo Mode</a>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <!-- KPI Row -->
+    <div class="kpi-grid fade-up">
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-header">
+          <span class="kpi-label">Total Claims</span>
+          <div class="kpi-icon-wrap">▦</div>
+        </div>
+        <div class="kpi-value" data-count="{{ total }}">0</div>
+        <div class="kpi-sub">Health insurance portfolio</div>
+      </div>
+      <div class="kpi-card kpi-red">
+        <div class="kpi-header">
+          <span class="kpi-label">Fraud Detected</span>
+          <div class="kpi-icon-wrap">⚑</div>
+        </div>
+        <div class="kpi-value" data-count="{{ fraud_count }}">0</div>
+        <div class="kpi-sub">{{ fraud_pct }}% of all claims</div>
+      </div>
+      <div class="kpi-card kpi-green">
+        <div class="kpi-header">
+          <span class="kpi-label">Legitimate Claims</span>
+          <div class="kpi-icon-wrap">✓</div>
+        </div>
+        <div class="kpi-value" data-count="{{ legit_count }}">0</div>
+        <div class="kpi-sub">Policyholders protected</div>
+      </div>
+      <div class="kpi-card kpi-cyan">
+        <div class="kpi-header">
+          <span class="kpi-label">Fraud Recall</span>
+          <div class="kpi-icon-wrap">◎</div>
+        </div>
+        <div class="kpi-value" data-count="{{ (metrics.recall*100)|round(1) }}" data-decimals="1">0</div>
+        <div class="kpi-sub">Gap 1 · Detection rate %</div>
+      </div>
+      <div class="kpi-card kpi-green">
+        <div class="kpi-header">
+          <span class="kpi-label">Genuine Protection</span>
+          <div class="kpi-icon-wrap">⊡</div>
+        </div>
+        <div class="kpi-value" data-count="{{ (metrics.gcpr*100)|round(2) }}" data-decimals="2">0</div>
+        <div class="kpi-sub">Gap 1 · GCPR %</div>
+      </div>
+      <div class="kpi-card kpi-amber">
+        <div class="kpi-header">
+          <span class="kpi-label">False Positive Rate</span>
+          <div class="kpi-icon-wrap">⚠</div>
+        </div>
+        <div class="kpi-value" data-count="{{ (metrics.fpr*100)|round(2) }}" data-decimals="2">0</div>
+        <div class="kpi-sub">Wrongly flagged genuine %</div>
+      </div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="grid-2-1 fade-up-2">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title"><span class="ct-dot" style="background:var(--blue)"></span>Monthly Claim Trend</span>
+          <span class="gap-tag">Gap 1</span>
+        </div>
+        <div class="card-body">
+          <canvas id="trendChart" height="100"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title"><span class="ct-dot" style="background:var(--purple)"></span>Risk Tier Distribution</span>
+          <span class="gap-tag">Gap 2</span>
+        </div>
+        <div class="card-body">
+          <canvas id="tierChart" height="170"></canvas>
+          <div style="margin-top:12px;">
+            <div style="display:flex;gap:3px;height:4px;border-radius:2px;overflow:hidden;">
+              <div style="flex:30;background:var(--green)"></div>
+              <div style="flex:30;background:var(--amber)"></div>
+              <div style="flex:40;background:var(--red)"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);margin-top:5px;">
+              <span>Auto (&lt;30%)</span><span>Review (30–60%)</span><span>Investigate (≥60%)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="grid-3 fade-up-3">
+      <div class="card">
+        <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--blue)"></span>Claim Type Breakdown</span></div>
+        <div class="card-body"><canvas id="typeChart" height="160"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--amber)"></span>Fraud by Specialty</span></div>
+        <div class="card-body"><canvas id="provChart" height="160"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--purple)"></span>Fraud by Amount Band</span></div>
+        <div class="card-body"><canvas id="amtChart" height="160"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Model Metrics -->
+    <div class="card fade-up-3">
+      <div class="card-head">
+        <span class="card-title"><span class="ct-dot" style="background:var(--green)"></span>7-Metric Evaluation Framework</span>
+        <span class="gap-tag">Gap 1 · Multi-Metric</span>
+      </div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;">
+          {% for label, val, color in [
+            ("Accuracy",                   metrics.accuracy,  "var(--blue)"),
+            ("Precision",                  metrics.precision, "var(--purple)"),
+            ("Recall (Fraud Detection)",   metrics.recall,    "var(--red)"),
+            ("F1-Score",                   metrics.f1_score,  "var(--cyan)"),
+            ("ROC-AUC",                    metrics.roc_auc,   "var(--blue)"),
+            ("PR-AUC",                     metrics.pr_auc,    "var(--amber)"),
+            ("Genuine Claim Protection",   metrics.gcpr,      "var(--green)"),
+          ] %}
+          <div class="metric-row">
+            <div class="metric-meta">
+              <span class="metric-name">{{ label }}</span>
+              <span class="metric-val" style="color:{{ color }};">{{ "%.4f"|format(val) }}</span>
+            </div>
+            <div class="metric-track">
+              <div class="metric-fill" data-width="{{ (val*100)|round(1) }}" style="background:{{ color }};"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div><!-- /page-body -->
+</div><!-- /main-content -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/static/js/main.js"></script>
+<script>
+  renderDashboardCharts(
+    {{ months|safe }}, {{ fraud_trend|safe }}, {{ legit_trend|safe }},
+    {{ type_dist|safe }}, {{ prov_dist|safe }}, {{ amt_dist|safe }},
+    {{ metrics.tier_counts|tojson }}
+  );
+</script>
+</body>
+</html>

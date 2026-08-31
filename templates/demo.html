@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FraudShield AI — Demo Mode</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body class="demo-body-cls">
+
+<div class="demo-shell">
+
+  <!-- ── Top Bar ─────────────────────────────────────────────────── -->
+  <div class="demo-topbar">
+    <div class="demo-topbar-left">
+      <div class="demo-brand">
+        <div class="db-badge">🛡</div>
+        <div class="db-text"><h2>FraudShield AI</h2><p>Insurance Fraud Detection · Staff Presentation</p></div>
+      </div>
+      <div class="demo-slide-title" id="slide-title-label">Introduction</div>
+    </div>
+    <div class="demo-ctrls">
+      <span class="slide-cnt" id="slide-counter">1 / 9</span>
+      <button class="demo-ctrl-btn" onclick="prevSlide()" title="Previous (←)">◀</button>
+      <button class="demo-ctrl-btn primary" id="btn-play" onclick="toggleAutoPlay()" title="Play/Pause (P)">⏸</button>
+      <button class="demo-ctrl-btn" onclick="nextSlide()" title="Next (→)">▶</button>
+      <a href="/" class="demo-ctrl-btn" title="Exit Demo" style="text-decoration:none;color:inherit;">✕</a>
+    </div>
+  </div>
+
+  <!-- ── Body ────────────────────────────────────────────────────── -->
+  <div class="demo-main">
+
+    <!-- Left sidebar -->
+    <div class="demo-sidebar">
+      <div class="ds-label">Presentation</div>
+      <button class="ds-btn" id="sbtn-intro" onclick="goTo(0)">
+        <span class="ds-btn-icon">▦</span>
+        <span class="ds-btn-text"><span class="ds-btn-name">Introduction</span><span class="ds-btn-desc">Framework overview &amp; key numbers</span></span>
+      </button>
+      <button class="ds-btn" id="sbtn-pipeline" onclick="goTo(1)">
+        <span class="ds-btn-icon">⚙</span>
+        <span class="ds-btn-text"><span class="ds-btn-name">AI Pipeline</span><span class="ds-btn-desc">SMOTE → XGBoost → 3-Tier → SHAP</span></span>
+      </button>
+
+      <div class="ds-sep"></div>
+      <div class="ds-label">Demo Scenarios</div>
+      <button class="ds-btn" id="sbtn-legit" onclick="goTo(2)">
+        <span class="ds-btn-icon" style="color:var(--green);">✓</span>
+        <span class="ds-btn-text"><span class="ds-btn-name">Scenario A — Legitimate</span><span class="ds-btn-desc">Young employed patient · $1,850 · Routine</span></span>
+      </button>
+      <button class="ds-btn" id="sbtn-suspect" onclick="goTo(3)">
+        <span class="ds-btn-icon" style="color:var(--amber);">⚠</span>
+        <span class="ds-btn-text"><span class="ds-btn-name">Scenario B — Suspicious</span><span class="ds-btn-desc">Unemployed · $6,200 · Phone submission</span></span>
+      </button>
+      <button class="ds-btn" id="sbtn-fraud" onclick="goTo(4)">
+        <span class="ds-btn-icon" style="color:var(--red);">⚑</span>
+        <span class="ds-btn-text"><span class="ds-btn-name">Scenario C — Fraud</span><span class="ds-btn-desc">Retired widow · $9,800 · Paper · Cluster 3</span></span>
+      </button>
+
+      <div class="ds-sep"></div>
+      <div class="ds-label">Research Gaps</div>
+      <button class="ds-btn" id="sbtn-gap1" onclick="goTo(5)">
+        <span class="ds-btn-icon">⊡</span>
+        <span class="ds-btn-text"><span class="ds-btn-name">Gap 1 — Multi-Metric</span><span class="ds-btn-desc">7 evaluation metrics incl. GCPR &amp; FPR</span></span>
+      </button>
+      <button class="ds-btn" id="sbtn-gap2" onclick="goTo(6)">
+        <span class="ds-btn-icon">⊙</span>
+        <span class="ds-btn-text"><span class="ds-btn-name">Gap 2 — 3-Tier Routing</span><span class="ds-btn-desc">θ₁=0.30, θ₂=0.60 thresholds</span></span>
+      </button>
+      <button class="ds-btn" id="sbtn-gap3" onclick="goTo(7)">
+        <span class="ds-btn-icon">⁂</span>
+        <span class="ds-btn-text"><span class="ds-btn-name">Gap 3 — SHAP Explain</span><span class="ds-btn-desc">Per-claim XAI audit trail</span></span>
+      </button>
+      <button class="ds-btn" id="sbtn-summary" onclick="goTo(8)">
+        <span class="ds-btn-icon">★</span>
+        <span class="ds-btn-text"><span class="ds-btn-name">Summary</span><span class="ds-btn-desc">Results &amp; framework impact</span></span>
+      </button>
+
+      <div class="ds-sep"></div>
+      <div style="padding:8px;">
+        <a href="/" class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-bottom:6px;">▦ Dashboard</a>
+        <a href="/predict" class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;">◎ Predictor</a>
+      </div>
+    </div>
+
+    <!-- ── Slides Area ────────────────────────────────────────────── -->
+    <div class="demo-content" id="demo-content">
+
+      <!-- SLIDE 0: Introduction -->
+      <div class="slide-panel active" id="sp-intro">
+        <div style="text-align:center;padding:20px 0 28px;">
+          <div style="font-size:44px;margin-bottom:14px;">🛡</div>
+          <h2 style="font-size:26px;font-weight:800;margin-bottom:8px;">FraudShield AI</h2>
+          <p style="font-size:14px;color:var(--text-3);max-width:520px;margin:0 auto 24px;line-height:1.7;">
+            An AI-Based Framework for Improving Insurance Fraud Detection<br/>
+            While Reducing Genuine Claim Rejection
+          </p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <a href="/" class="btn btn-primary">▦ Live Dashboard</a>
+            <a href="/predict" class="btn btn-ghost">◎ Claim Predictor</a>
+            <a href="/analytics" class="btn btn-ghost">∿ Analytics</a>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+          <div class="kpi-card kpi-red" style="text-align:center;">
+            <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px;">Fraud Claims in Dataset</div>
+            <div style="font-size:32px;font-weight:900;color:var(--red);">{{ metrics.total_fraud }}</div>
+            <div style="font-size:11px;color:var(--text-3);margin-top:4px;">{{ ((metrics.total_fraud/(metrics.total_fraud+metrics.total_legit))*100)|round(1) }}% · Severely imbalanced</div>
+          </div>
+          <div class="kpi-card kpi-blue" style="text-align:center;">
+            <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px;">ROC-AUC Achieved</div>
+            <div style="font-size:32px;font-weight:900;color:var(--blue);">{{ (metrics.roc_auc*100)|round(2) }}%</div>
+            <div style="font-size:11px;color:var(--text-3);margin-top:4px;">XGBoost + SMOTE</div>
+          </div>
+          <div class="kpi-card kpi-green" style="text-align:center;">
+            <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:8px;">Genuine Claim Protection</div>
+            <div style="font-size:32px;font-weight:900;color:var(--green);">{{ (metrics.gcpr*100)|round(2) }}%</div>
+            <div style="font-size:11px;color:var(--text-3);margin-top:4px;">Policyholders protected (GCPR)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 1: Pipeline -->
+      <div class="slide-panel" id="sp-pipeline">
+        <h2 class="slide-h2">AI Detection Pipeline</h2>
+        <p class="slide-sub">End-to-end flow from raw claim data to actionable routing decision</p>
+        <div class="pipeline-step"><div class="ps-num">1</div><div class="ps-body"><h4>Data Ingestion &amp; Feature Engineering</h4><p>4,500 records loaded. Date fields converted to ClaimMonth, DayOfWeek, Year. One-hot encoding applied to 7 categorical features. Non-predictive IDs dropped.</p></div></div>
+        <div class="pipeline-step"><div class="ps-num">2</div><div class="ps-body"><h4>SMOTE Oversampling — Imbalance Correction</h4><p>Original: 4,230 Legitimate vs 270 Fraud (94:6). SMOTE generates synthetic fraud samples. After resampling: balanced 3,384 vs 3,384 training set.</p><span class="ps-metric">Fraud samples: 270 → 3,384</span></div></div>
+        <div class="pipeline-step"><div class="ps-num">3</div><div class="ps-body"><h4>XGBoost Classifier Training</h4><p>300 gradient-boosted trees, depth 6, lr 0.05. Outputs a continuous fraud probability 0.0–1.0 for every claim. Trained on SMOTE-balanced data.</p><span class="ps-metric">ROC-AUC: {{ metrics.roc_auc }} · PR-AUC: {{ metrics.pr_auc }}</span></div></div>
+        <div class="pipeline-step"><div class="ps-num">4</div><div class="ps-body"><h4>Three-Tier Risk Routing Engine — Gap 2</h4><p>Dual thresholds θ₁=0.30 and θ₂=0.60 partition the probability space: Auto-Approve (fast-track genuine) / Manual Review / Investigate (FIU). Eliminates binary all-or-nothing decisions.</p><span class="ps-metric">θ₁ = 0.30 · θ₂ = 0.60</span></div></div>
+        <div class="pipeline-step"><div class="ps-num">5</div><div class="ps-body"><h4>SHAP Explainability — Gap 3</h4><p>SHapley Additive exPlanations computed per-claim. Claims adjusters see why each claim was flagged before any adverse decision is made. No black-box outcomes.</p><span class="ps-metric">Feature-level transparency · TreeExplainer</span></div></div>
+      </div>
+
+      <!-- SLIDE 2: Legit -->
+      <div class="slide-panel" id="sp-legit">
+        <h2 class="slide-h2">Scenario A — Legitimate Claim</h2>
+        <p class="slide-sub">Standard low-risk profile · Genuine policyholder fast-tracked · No false positive</p>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--green)"></span>Claim Details</span></div>
+            <div class="card-body-sm">
+              <table class="claim-detail-tbl">
+                <tr><td>Patient Age</td><td>28 years</td></tr>
+                <tr><td>Gender</td><td>Female</td></tr>
+                <tr><td>Employment</td><td>Employed</td></tr>
+                <tr><td>Marital Status</td><td>Single</td></tr>
+                <tr><td>Claim Amount</td><td class="mono">$1,850.00</td></tr>
+                <tr><td>Claim Type</td><td>Routine</td></tr>
+                <tr><td>Provider Specialty</td><td>General Practice</td></tr>
+                <tr><td>Submission Method</td><td>Online</td></tr>
+                <tr><td>Risk Cluster</td><td class="mono">0</td></tr>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="demo-result-card res-green" style="margin-bottom:12px;">
+              <div class="drc-head">
+                <div><div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:3px;">AI Decision</div><div class="drc-tier">✓ AUTO-APPROVE</div></div>
+                <div><div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:3px;">Fraud Score</div><div class="drc-score">4.2%</div></div>
+              </div>
+              <div class="drc-body">
+                <div style="font-size:10.5px;color:var(--text-3);margin-bottom:5px;">Risk Score Bar</div>
+                <div class="prob-bar-track"><div class="prob-bar-fill" style="width:4.2%;background:var(--green);"></div></div>
+                <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);margin-top:4px;"><span>0%</span><span>θ₁=30%</span><span>θ₂=60%</span><span>100%</span></div>
+                <p class="drc-action">Claim approved automatically. Genuine policyholder protected. Zero false positive — Gap 1 GCPR maintained.</p>
+              </div>
+            </div>
+            <div style="background:var(--green-dim);border:1px solid rgba(34,197,94,0.2);border-radius:var(--radius-sm);padding:12px 14px;">
+              <div style="font-size:10.5px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Why It's Legitimate</div>
+              <ul style="font-size:12px;color:var(--text-2);padding-left:16px;line-height:1.8;"><li>Young employed patient — low-risk profile</li><li>Low claim amount ($1,850) below dataset average</li><li>Routine procedure via online submission</li><li>No anomalous feature flags in SHAP analysis</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 3: Suspect -->
+      <div class="slide-panel" id="sp-suspect">
+        <h2 class="slide-h2">Scenario B — Suspicious Claim</h2>
+        <p class="slide-sub">Borderline case · Not auto-approved, not outright rejected · Human adjuster involved</p>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--amber)"></span>Claim Details</span></div>
+            <div class="card-body-sm">
+              <table class="claim-detail-tbl">
+                <tr><td>Patient Age</td><td>58 years</td></tr>
+                <tr><td>Gender</td><td>Male</td></tr>
+                <tr><td>Employment</td><td>Unemployed</td></tr>
+                <tr><td>Marital Status</td><td>Divorced</td></tr>
+                <tr><td>Claim Amount</td><td class="mono">$6,200.00</td></tr>
+                <tr><td>Claim Type</td><td>Inpatient</td></tr>
+                <tr><td>Provider Specialty</td><td>Cardiology</td></tr>
+                <tr><td>Submission Method</td><td>Phone</td></tr>
+                <tr><td>Risk Cluster</td><td class="mono">2</td></tr>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="demo-result-card res-amber" style="margin-bottom:12px;">
+              <div class="drc-head">
+                <div><div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:3px;">AI Decision</div><div class="drc-tier">⚠ MANUAL REVIEW</div></div>
+                <div><div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:3px;">Fraud Score</div><div class="drc-score">44.7%</div></div>
+              </div>
+              <div class="drc-body">
+                <div style="font-size:10.5px;color:var(--text-3);margin-bottom:5px;">Risk Score Bar</div>
+                <div class="prob-bar-track"><div class="prob-bar-fill" style="width:44.7%;background:var(--amber);"></div></div>
+                <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);margin-top:4px;"><span>0%</span><span>θ₁=30%</span><span>θ₂=60%</span><span>100%</span></div>
+                <p class="drc-action">Routed to human adjuster with SHAP evidence. NOT rejected automatically — may be genuine. Gap 2 prevents wrongful denial.</p>
+              </div>
+            </div>
+            <div style="background:var(--amber-dim);border:1px solid rgba(245,158,11,0.2);border-radius:var(--radius-sm);padding:12px 14px;">
+              <div style="font-size:10.5px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Risk Factors Detected</div>
+              <ul style="font-size:12px;color:var(--text-2);padding-left:16px;line-height:1.8;"><li>Unemployed, mid-life — elevated risk profile</li><li>Above-average claim amount ($6,200)</li><li>Phone submission — less auditable</li><li>Cluster 2 — known mid-risk segment</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 4: Fraud -->
+      <div class="slide-panel" id="sp-fraud">
+        <h2 class="slide-h2">Scenario C — Fraudulent Claim</h2>
+        <p class="slide-sub">High-risk claim · Escalated immediately to Fraud Investigation Unit with SHAP report</p>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--red)"></span>Claim Details</span></div>
+            <div class="card-body-sm">
+              <table class="claim-detail-tbl">
+                <tr><td>Patient Age</td><td>79 years</td></tr>
+                <tr><td>Gender</td><td>Female</td></tr>
+                <tr><td>Employment</td><td>Retired</td></tr>
+                <tr><td>Marital Status</td><td>Widowed</td></tr>
+                <tr><td>Claim Amount</td><td class="mono">$9,800.00</td></tr>
+                <tr><td>Claim Type</td><td>Emergency</td></tr>
+                <tr><td>Provider Specialty</td><td>Neurology</td></tr>
+                <tr><td>Submission Method</td><td>Paper</td></tr>
+                <tr><td>Risk Cluster</td><td class="mono">3</td></tr>
+              </table>
+            </div>
+          </div>
+          <div>
+            <div class="demo-result-card res-red" style="margin-bottom:12px;">
+              <div class="drc-head">
+                <div><div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:3px;">AI Decision</div><div class="drc-tier">⚑ INVESTIGATE (FIU)</div></div>
+                <div><div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:3px;">Fraud Score</div><div class="drc-score">97.3%</div></div>
+              </div>
+              <div class="drc-body">
+                <div style="font-size:10.5px;color:var(--text-3);margin-bottom:5px;">Risk Score Bar</div>
+                <div class="prob-bar-track"><div class="prob-bar-fill" style="width:97.3%;background:var(--red);"></div></div>
+                <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);margin-top:4px;"><span>0%</span><span>θ₁=30%</span><span>θ₂=60%</span><span>100%</span></div>
+                <p class="drc-action">Immediately escalated to FIU. Claim held pending full audit. SHAP feature report attached for investigator (Gap 3).</p>
+              </div>
+            </div>
+            <div style="background:var(--red-dim);border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius-sm);padding:12px 14px;">
+              <div style="font-size:10.5px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;">Fraud Indicators</div>
+              <ul style="font-size:12px;color:var(--text-2);padding-left:16px;line-height:1.8;"><li>Near-maximum claim ($9,800 — top 5%)</li><li>Paper submission — hardest to audit</li><li>High-risk Cluster 3 segment</li><li>Elderly retired widow — vulnerable profile exploited</li><li>SHAP: Cluster + Amount are dominant fraud drivers</li></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 5: Gap 1 -->
+      <div class="slide-panel" id="sp-gap1">
+        <h2 class="slide-h2">Research Gap 1 — Multi-Metric Evaluation</h2>
+        <p class="slide-sub">Existing literature maximises Accuracy alone. On 6% fraud imbalance, this is misleading and insufficient.</p>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">
+          {% for label, val, color in [("Accuracy", metrics.accuracy, "var(--blue)"), ("PR-AUC", metrics.pr_auc, "var(--amber)"), ("GCPR", metrics.gcpr, "var(--green)"), ("FPR", metrics.fpr, "var(--red)")] %}
+          <div class="card" style="text-align:center;padding:16px;">
+            <div style="font-size:10.5px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:6px;">{{ label }}</div>
+            <div style="font-size:28px;font-weight:900;color:{{ color }};" class="mono">{{ "%.3f"|format(val) }}</div>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--red)"></span>Without This Framework</span></div>
+            <div class="card-body-sm" style="font-size:12.5px;color:var(--text-3);line-height:1.8;">
+              ✗ Only Accuracy tracked — misleading on imbalanced data<br/>
+              ✗ No GCPR measured — genuine claims not protected<br/>
+              ✗ No FPR target — false alarms flood investigators<br/>
+              ✗ PR-AUC ignored — ROC-AUC overly optimistic<br/>
+              ✗ Black-box binary decisions — no adjuster guidance
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--green)"></span>With This Framework</span></div>
+            <div class="card-body-sm" style="font-size:12.5px;color:var(--text-2);line-height:1.8;">
+              ✓ 7 metrics tracked simultaneously<br/>
+              ✓ GCPR = <strong style="color:var(--green);">{{ (metrics.gcpr*100)|round(2) }}%</strong> — honest policyholders safe<br/>
+              ✓ FPR = <strong style="color:var(--amber);">{{ (metrics.fpr*100)|round(2) }}%</strong> — minimal false alarms<br/>
+              ✓ PR-AUC = <strong style="color:var(--amber);">{{ metrics.pr_auc }}</strong> — correct imbalanced metric<br/>
+              ✓ SHAP audit trail for every adverse decision
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 6: Gap 2 -->
+      <div class="slide-panel" id="sp-gap2">
+        <h2 class="slide-h2">Research Gap 2 — Three-Tier Risk Routing Engine</h2>
+        <p class="slide-sub">Binary 0/1 output floods investigators or approves everything. Dual-threshold routing solves this.</p>
+        <div class="tier-row" style="margin-bottom:16px;">
+          <div class="tier-box tier-green">
+            <div class="tb-head"><div class="tier-status"></div><span class="tb-name">Tier 1 — Auto-Approve</span></div>
+            <div class="tb-range">Fraud Score &lt; 30%</div>
+            <div class="tb-theta">θ₁ = 0.30</div>
+            <div class="tb-desc">Genuine claims fast-tracked. No human delay. Policyholder satisfaction and trust maintained.</div>
+          </div>
+          <div class="tier-box tier-amber">
+            <div class="tb-head"><div class="tier-status"></div><span class="tb-name">Tier 2 — Manual Review</span></div>
+            <div class="tb-range">30% ≤ Score &lt; 60%</div>
+            <div class="tb-theta">θ₁ → θ₂</div>
+            <div class="tb-desc">Human adjuster reviews SHAP evidence. Not rejected automatically — balances speed with diligence.</div>
+          </div>
+          <div class="tier-box tier-red">
+            <div class="tb-head"><div class="tier-status"></div><span class="tb-name">Tier 3 — Investigate (FIU)</span></div>
+            <div class="tb-range">Score ≥ 60%</div>
+            <div class="tb-theta">θ₂ = 0.60</div>
+            <div class="tb-desc">Immediate FIU escalation with full SHAP audit report attached for investigator.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--blue)"></span>Test Set — Tier Distribution (900 claims)</span></div>
+          <div class="card-body-sm" style="display:grid;grid-template-columns:repeat(3,1fr);gap:0;text-align:center;">
+            {% for tier, count, color in [
+              ("Auto-Approve", metrics.tier_counts.get("Auto-Approve", 0), "var(--green)"),
+              ("Manual Review", metrics.tier_counts.get("Manual Review", 0), "var(--amber)"),
+              ("Investigate", metrics.tier_counts.get("Investigate", 0), "var(--red)"),
+            ] %}
+            <div style="border-right: {% if not loop.last %}1px solid var(--border){% else %}none{% endif %};padding:10px;">
+              <div style="font-size:30px;font-weight:900;color:{{ color }};" class="mono">{{ count }}</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:3px;">{{ tier }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 7: Gap 3 -->
+      <div class="slide-panel" id="sp-gap3">
+        <h2 class="slide-h2">Research Gap 3 — SHAP Explainability</h2>
+        <p class="slide-sub">Black-box models cannot justify adverse decisions. SHAP provides feature-level attribution for every claim.</p>
+        <div class="grid-2">
+          <div>
+            <div class="pipeline-step" style="border-left:3px solid var(--purple);margin-bottom:10px;">
+              <div class="ps-num" style="background:var(--purple);">G3</div>
+              <div class="ps-body"><h4>How SHAP Works</h4><p>SHapley Additive exPlanations — game-theoretic approach that assigns each feature a contribution score to the final prediction. Globally consistent and locally faithful.</p></div>
+            </div>
+            <div class="pipeline-step" style="margin-bottom:10px;">
+              <div class="ps-num" style="background:var(--red);">▲</div>
+              <div class="ps-body"><h4 style="color:var(--red);">Red Bars — Fraud Increasing</h4><p>ClaimAmount high, Cluster=3, Paper submission — each pushes the score toward fraud. Adjuster investigates these factors.</p></div>
+            </div>
+            <div class="pipeline-step">
+              <div class="ps-num" style="background:var(--blue);">▼</div>
+              <div class="ps-body"><h4 style="color:var(--blue);">Blue Bars — Fraud Decreasing</h4><p>YoungAge, OnlineSubmission, LowAmount — each pulls score toward legitimate. Contextual mitigating factors surfaced.</p></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--purple)"></span>SHAP Global Summary</span></div>
+            <div class="card-body" style="padding:12px;">
+              <img src="/static/plots/shap_summary.png" class="plot-img" alt="SHAP Summary"/>
+              <div style="font-size:11px;color:var(--text-3);text-align:center;margin-top:8px;">Feature impact across 200 test claims</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 8: Summary -->
+      <div class="slide-panel" id="sp-summary">
+        <h2 class="slide-h2" style="text-align:center;margin-bottom:6px;">Framework Summary</h2>
+        <p class="slide-sub" style="text-align:center;margin-bottom:24px;">FraudShield AI — Three Research Gaps Addressed</p>
+        <div class="summary-3" style="margin-bottom:20px;">
+          <div class="sum-card">
+            <div class="s-num" style="color:var(--blue);" class="mono">G1</div>
+            <div class="s-lbl">Multi-Metric Evaluation</div>
+            <div class="s-desc">7 simultaneous metrics including GCPR and FPR. PR-AUC over ROC-AUC for imbalanced data. SMOTE for class correction.</div>
+            <div style="margin-top:14px;font-size:22px;font-weight:900;color:var(--green);" class="mono">{{ (metrics.gcpr*100)|round(2) }}%</div>
+            <div style="font-size:11px;color:var(--text-3);">Genuine Claim Protection Rate</div>
+          </div>
+          <div class="sum-card">
+            <div class="s-num" style="color:var(--amber);" class="mono">G2</div>
+            <div class="s-lbl">3-Tier Routing Engine</div>
+            <div class="s-desc">Dual-threshold routing (θ₁=0.30, θ₂=0.60). Auto-Approve → Manual Review → Investigate. Proportionate risk decisions.</div>
+            <div style="margin-top:14px;font-size:22px;font-weight:900;color:var(--amber);" class="mono">3 Tiers</div>
+            <div style="font-size:11px;color:var(--text-3);">Risk-proportionate routing</div>
+          </div>
+          <div class="sum-card">
+            <div class="s-num" style="color:var(--purple);" class="mono">G3</div>
+            <div class="s-lbl">SHAP Explainability</div>
+            <div class="s-desc">Per-claim SHAP waterfall charts generated on every prediction. Auditable feature attribution before any adverse decision.</div>
+            <div style="margin-top:14px;font-size:22px;font-weight:900;color:var(--purple);" class="mono">XAI</div>
+            <div style="font-size:11px;color:var(--text-3);">Transparent AI decisions</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body-sm" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <a href="/" class="btn btn-primary">▦ Live Dashboard</a>
+            <a href="/predict" class="btn btn-ghost">◎ Try Predictor</a>
+            <a href="/analytics" class="btn btn-ghost">∿ Full Analytics</a>
+            <a href="/batch" class="btn btn-ghost">≡ Batch Analysis</a>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /demo-content -->
+  </div><!-- /demo-main -->
+
+  <!-- ── Footer ──────────────────────────────────────────────────── -->
+  <div class="demo-footer">
+    <div class="progress-dots" id="progress-dots"></div>
+    <div class="autoplay-info">
+      <div class="ap-dot ap-on" id="ap-dot"></div>
+      <span id="ap-label">Auto-play</span>
+    </div>
+    <div class="timer-txt" id="timer-txt">10s</div>
+  </div>
+
+</div><!-- /demo-shell -->
+
+<script>
+const SLIDES = [
+  { id:'intro',    btn:'sbtn-intro',    label:'Introduction',              cls:'' },
+  { id:'pipeline', btn:'sbtn-pipeline', label:'AI Pipeline',              cls:'' },
+  { id:'legit',    btn:'sbtn-legit',    label:'Scenario A — Legitimate',  cls:'active-legit' },
+  { id:'suspect',  btn:'sbtn-suspect',  label:'Scenario B — Suspicious',  cls:'active-amber' },
+  { id:'fraud',    btn:'sbtn-fraud',    label:'Scenario C — Fraud',       cls:'active-red' },
+  { id:'gap1',     btn:'sbtn-gap1',     label:'Gap 1 — Multi-Metric',     cls:'active-blue' },
+  { id:'gap2',     btn:'sbtn-gap2',     label:'Gap 2 — 3-Tier Routing',   cls:'active-blue' },
+  { id:'gap3',     btn:'sbtn-gap3',     label:'Gap 3 — SHAP Explain',     cls:'active-blue' },
+  { id:'summary',  btn:'sbtn-summary',  label:'Summary',                  cls:'active-blue' },
+];
+const DURATION = 10;
+let cur = 0, autoPlay = true, timer = DURATION;
+let interval = null;
+
+// Build progress dots
+const dotWrap = document.getElementById('progress-dots');
+SLIDES.forEach((s, i) => {
+  const d = document.createElement('div');
+  d.className = 'prog-dot' + (i === 0 ? ' active' : '');
+  d.title = s.label;
+  d.onclick = () => goTo(i);
+  d.id = 'pd-' + i;
+  dotWrap.appendChild(d);
+});
+
+function goTo(idx) {
+  // Hide current
+  document.getElementById('sp-' + SLIDES[cur].id).classList.remove('active');
+  const ob = document.getElementById(SLIDES[cur].btn);
+  if (ob) ob.className = 'ds-btn';
+  document.getElementById('pd-' + cur).classList.remove('active', 'done');
+  document.getElementById('pd-' + cur).classList.add('done');
+
+  cur = idx;
+
+  // Show new
+  document.getElementById('sp-' + SLIDES[cur].id).classList.add('active');
+  const nb = document.getElementById(SLIDES[cur].btn);
+  if (nb) nb.className = 'ds-btn ' + (SLIDES[cur].cls || 'active-blue');
+  for (let i = 0; i < SLIDES.length; i++) {
+    const d = document.getElementById('pd-' + i);
+    d.classList.remove('active', 'done');
+    if (i < cur) d.classList.add('done');
+    if (i === cur) d.classList.add('active');
+  }
+
+  document.getElementById('slide-counter').textContent = (cur + 1) + ' / ' + SLIDES.length;
+  document.getElementById('slide-title-label').textContent = SLIDES[cur].label;
+  document.getElementById('demo-content').scrollTo({ top: 0, behavior: 'smooth' });
+
+  resetTimer();
+}
+
+function nextSlide() { goTo((cur + 1) % SLIDES.length); }
+function prevSlide() { goTo((cur - 1 + SLIDES.length) % SLIDES.length); }
+
+function resetTimer() {
+  timer = DURATION;
+  document.getElementById('timer-txt').textContent = timer + 's';
+  clearInterval(interval);
+  if (autoPlay) {
+    interval = setInterval(() => {
+      timer--;
+      document.getElementById('timer-txt').textContent = timer + 's';
+      if (timer <= 0) nextSlide();
+    }, 1000);
+  }
+}
+
+function toggleAutoPlay() {
+  autoPlay = !autoPlay;
+  const btn = document.getElementById('btn-play');
+  const dot = document.getElementById('ap-dot');
+  const lbl = document.getElementById('ap-label');
+  btn.textContent = autoPlay ? '⏸' : '▶';
+  btn.className = 'demo-ctrl-btn ' + (autoPlay ? 'primary' : '');
+  dot.className = 'ap-dot ' + (autoPlay ? 'ap-on' : 'ap-off');
+  lbl.textContent = autoPlay ? 'Auto-play' : 'Paused';
+  if (autoPlay) resetTimer();
+  else { clearInterval(interval); document.getElementById('timer-txt').textContent = '—'; }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+  if (e.key === 'p' || e.key === 'P') toggleAutoPlay();
+});
+
+goTo(0);
+</script>
+</body>
+</html>

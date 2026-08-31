@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FraudShield AI — Model Analytics</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">🛡</div>
+    <div class="logo-text"><h2>FraudShield AI</h2><p>Insurance Fraud Detection</p></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="/" class="nav-item"><span class="ni">▦</span> Dashboard</a>
+    <a href="/predict" class="nav-item"><span class="ni">◎</span> Claim Predictor</a>
+    <a href="/batch" class="nav-item"><span class="ni">≡</span> Batch Analysis</a>
+    <a href="/analytics" class="nav-item active"><span class="ni">∿</span> Model Analytics</a>
+    <div class="nav-label">Research Gaps</div>
+    <a href="#gap1" class="nav-item"><span class="ni">⊡</span> Multi-Metric Eval <span class="nav-badge">G1</span></a>
+    <a href="/predict#gap2" class="nav-item"><span class="ni">⊙</span> 3-Tier Routing <span class="nav-badge">G2</span></a>
+    <a href="/predict#gap3" class="nav-item"><span class="ni">⁂</span> SHAP Explain <span class="nav-badge">G3</span></a>
+    <div class="nav-label">Presentation</div>
+    <a href="/demo" class="nav-item nav-demo"><span class="ni">▷</span> Demo Mode</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-chip">
+      <div class="status-dot"></div>
+      <div class="status-text"><strong>XGBoost Active</strong><span>n_estimators=300</span></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Model Analytics</h1>
+      <p>Comprehensive evaluation — Gap 1 (multi-metric), Gap 2 (routing), Gap 3 (SHAP)</p>
+    </div>
+    <a href="/demo" class="btn btn-demo btn-sm">▷ Demo Mode</a>
+  </div>
+
+  <div class="page-body">
+
+    {% set m = metrics %}
+
+    <!-- Gap 1 Metrics -->
+    <div id="gap1" class="fade-up" style="margin-bottom:20px;">
+      <div class="section-title">Gap 1 — Multi-Metric Evaluation Framework <span class="st-badge">Research Gap 1</span></div>
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-header"><span class="kpi-label">Accuracy</span><div class="kpi-icon-wrap">◎</div></div>
+          <div class="kpi-value" data-count="{{ (m.accuracy*100)|round(2) }}" data-decimals="2">0</div>
+          <div class="kpi-sub">Overall correct predictions %</div>
+        </div>
+        <div class="kpi-card kpi-purple">
+          <div class="kpi-header"><span class="kpi-label">Precision</span><div class="kpi-icon-wrap">⊙</div></div>
+          <div class="kpi-value" data-count="{{ (m.precision*100)|round(2) }}" data-decimals="2">0</div>
+          <div class="kpi-sub">Flagged claims that are fraud %</div>
+        </div>
+        <div class="kpi-card kpi-red">
+          <div class="kpi-header"><span class="kpi-label">Recall</span><div class="kpi-icon-wrap">◉</div></div>
+          <div class="kpi-value" data-count="{{ (m.recall*100)|round(2) }}" data-decimals="2">0</div>
+          <div class="kpi-sub">Fraud claims caught %</div>
+        </div>
+        <div class="kpi-card kpi-cyan">
+          <div class="kpi-header"><span class="kpi-label">F1-Score</span><div class="kpi-icon-wrap">⊡</div></div>
+          <div class="kpi-value" data-count="{{ (m.f1_score*100)|round(2) }}" data-decimals="2">0</div>
+          <div class="kpi-sub">Harmonic mean of P &amp; R %</div>
+        </div>
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-header"><span class="kpi-label">ROC-AUC</span><div class="kpi-icon-wrap">∿</div></div>
+          <div class="kpi-value" data-count="{{ (m.roc_auc*100)|round(3) }}" data-decimals="3">0</div>
+          <div class="kpi-sub">Area under ROC curve %</div>
+        </div>
+        <div class="kpi-card kpi-amber">
+          <div class="kpi-header"><span class="kpi-label">PR-AUC</span><div class="kpi-icon-wrap">⁂</div></div>
+          <div class="kpi-value" data-count="{{ (m.pr_auc*100)|round(3) }}" data-decimals="3">0</div>
+          <div class="kpi-sub">Superior for imbalanced data %</div>
+        </div>
+        <div class="kpi-card kpi-green">
+          <div class="kpi-header"><span class="kpi-label">GCPR</span><div class="kpi-icon-wrap">✓</div></div>
+          <div class="kpi-value" data-count="{{ (m.gcpr*100)|round(3) }}" data-decimals="3">0</div>
+          <div class="kpi-sub">Genuine Claim Protection Rate %</div>
+        </div>
+        <div class="kpi-card kpi-amber">
+          <div class="kpi-header"><span class="kpi-label">FPR</span><div class="kpi-icon-wrap">⚠</div></div>
+          <div class="kpi-value" data-count="{{ (m.fpr*100)|round(3) }}" data-decimals="3">0</div>
+          <div class="kpi-sub">False Positive Rate %</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROC + Confusion Matrix -->
+    <div class="grid-2 fade-up-2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title"><span class="ct-dot" style="background:var(--blue)"></span>ROC Curve</span>
+          <span class="gap-tag">Gap 1</span>
+        </div>
+        <div class="card-body">
+          <img src="/static/plots/roc_curve.png" class="plot-img" alt="ROC Curve"/>
+          <div style="text-align:center;margin-top:10px;font-size:11.5px;color:var(--text-3);">
+            AUC = <span class="mono" style="color:var(--blue);">{{ m.roc_auc }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title"><span class="ct-dot" style="background:var(--purple)"></span>Confusion Matrix</span>
+        </div>
+        <div class="card-body">
+          <img src="/static/plots/confusion_matrix.png" class="plot-img" alt="Confusion Matrix"/>
+          {% set cm = m.confusion_matrix %}
+          <div class="cm-grid">
+            <div class="cm-cell cm-tn"><div class="cm-num">{{ cm[0][0] }}</div><div class="cm-lbl">True Negatives</div></div>
+            <div class="cm-cell cm-fp"><div class="cm-num">{{ cm[0][1] }}</div><div class="cm-lbl">False Positives</div></div>
+            <div class="cm-cell cm-fn"><div class="cm-num">{{ cm[1][0] }}</div><div class="cm-lbl">False Negatives</div></div>
+            <div class="cm-cell cm-tp"><div class="cm-num">{{ cm[1][1] }}</div><div class="cm-lbl">True Positives</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PR + Feature Importance -->
+    <div class="grid-2 fade-up-2" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title"><span class="ct-dot" style="background:var(--amber)"></span>Precision-Recall Curve</span>
+          <span class="gap-tag">Gap 1 · Imbalanced-data metric</span>
+        </div>
+        <div class="card-body">
+          <img src="/static/plots/pr_curve.png" class="plot-img" alt="PR Curve"/>
+          <div style="text-align:center;margin-top:10px;font-size:11.5px;color:var(--text-3);">
+            PR-AUC = <span class="mono" style="color:var(--amber);">{{ m.pr_auc }}</span>
+            &nbsp;·&nbsp; Preferred over ROC-AUC on 6% fraud imbalance
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--green)"></span>Feature Importances</span></div>
+        <div class="card-body">
+          <img src="/static/plots/feature_importance.png" class="plot-img" alt="Feature Importance"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gap 3 SHAP -->
+    <div class="section-title fade-up">Gap 3 — SHAP Global Explainability <span class="st-badge">Research Gap 3</span></div>
+    <div class="card fade-up-2" style="margin-bottom:20px;">
+      <div class="card-head">
+        <span class="card-title"><span class="ct-dot" style="background:var(--purple)"></span>SHAP Summary — 200 Test Claims</span>
+        <span class="gap-tag">TreeExplainer · Post-hoc XAI</span>
+      </div>
+      <div class="card-body">
+        <p style="font-size:12.5px;color:var(--text-3);margin-bottom:14px;line-height:1.7;">
+          Addresses Gap 3 — explainability for every adverse claim decision. Red = fraud drivers, Blue = legitimacy drivers.
+          Claims adjusters can cite these factors before any denial.
+        </p>
+        <img src="/static/plots/shap_summary.png" class="plot-img" alt="SHAP Summary"/>
+      </div>
+    </div>
+
+    <!-- Configuration -->
+    <div class="section-title fade-up">Dataset &amp; Training Configuration</div>
+    <div class="grid-2 fade-up-2">
+      <div class="card">
+        <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--blue)"></span>Dataset</span></div>
+        <div class="card-body-sm">
+          <table class="info-table">
+            <tr><td>Source file</td><td>Health Insurance Fraud Claims.xlsx</td></tr>
+            <tr><td>Total records</td><td class="mono">{{ m.train_size + m.test_size }}</td></tr>
+            <tr><td>Training set</td><td class="mono">{{ m.train_size }} (80%)</td></tr>
+            <tr><td>Test set</td><td class="mono">{{ m.test_size }} (20%)</td></tr>
+            <tr><td>Fraud records</td><td class="mono">{{ m.total_fraud }} (~6%)</td></tr>
+            <tr><td>Legitimate</td><td class="mono">{{ m.total_legit }}</td></tr>
+            <tr><td>Imbalance fix</td><td>SMOTE Oversampling</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--green)"></span>Model Configuration</span></div>
+        <div class="card-body-sm">
+          <table class="info-table">
+            <tr><td>Algorithm</td><td>XGBoost Classifier</td></tr>
+            <tr><td>Estimators</td><td class="mono">300 trees</td></tr>
+            <tr><td>Max depth</td><td class="mono">6</td></tr>
+            <tr><td>Learning rate</td><td class="mono">0.05</td></tr>
+            <tr><td>Threshold θ₁</td><td class="mono">{{ m.theta1 }} → Auto-Approve / Review</td></tr>
+            <tr><td>Threshold θ₂</td><td class="mono">{{ m.theta2 }} → Review / Investigate</td></tr>
+            <tr><td>XAI method</td><td>SHAP TreeExplainer</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>

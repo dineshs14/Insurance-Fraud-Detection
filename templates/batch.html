@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FraudShield AI — Batch Analysis</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">🛡</div>
+    <div class="logo-text"><h2>FraudShield AI</h2><p>Insurance Fraud Detection</p></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="/" class="nav-item"><span class="ni">▦</span> Dashboard</a>
+    <a href="/predict" class="nav-item"><span class="ni">◎</span> Claim Predictor</a>
+    <a href="/batch" class="nav-item active"><span class="ni">≡</span> Batch Analysis</a>
+    <a href="/analytics" class="nav-item"><span class="ni">∿</span> Model Analytics</a>
+    <div class="nav-label">Presentation</div>
+    <a href="/demo" class="nav-item nav-demo"><span class="ni">▷</span> Demo Mode</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-chip">
+      <div class="status-dot"></div>
+      <div class="status-text"><strong>Batch Ready</strong><span>CSV / XLSX</span></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Batch Claim Analysis</h1>
+      <p>Score multiple claims from a CSV or XLSX file</p>
+    </div>
+    <a href="/demo" class="btn btn-demo btn-sm">▷ Demo Mode</a>
+  </div>
+
+  <div class="page-body">
+
+    <!-- Required columns -->
+    <div class="card fade-up" style="margin-bottom:16px;">
+      <div class="card-head">
+        <span class="card-title"><span class="ct-dot" style="background:var(--blue)"></span>Required Columns</span>
+      </div>
+      <div class="card-body-sm">
+        <p style="font-size:12px;color:var(--text-3);margin-bottom:10px;">Your file must contain all of the following columns:</p>
+        <div>
+          {% for col in ['ClaimAmount','PatientAge','PatientIncome','Cluster','ClaimMonth','ClaimDayOfWeek',
+                         'PatientGender','ProviderSpecialty','ClaimStatus','PatientMaritalStatus',
+                         'PatientEmploymentStatus','ClaimType','ClaimSubmissionMethod'] %}
+          <span class="col-pill">{{ col }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload -->
+    <div class="card fade-up-2" style="margin-bottom:20px;">
+      <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--green)"></span>Upload File</span></div>
+      <div class="card-body">
+        {% if error %}
+        <div style="background:var(--red-dim);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius-sm);padding:11px 14px;color:#fca5a5;margin-bottom:14px;font-size:12.5px;">⚠ {{ error }}</div>
+        {% endif %}
+        <form method="POST" action="/batch" enctype="multipart/form-data">
+          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+            <div class="upload-icon">📁</div>
+            <h3>Drag &amp; drop or click to browse</h3>
+            <p>Accepts .csv or .xlsx files · All columns must be present</p>
+            <p id="fname-display" style="margin-top:10px;color:var(--blue);font-size:12.5px;font-weight:600;"></p>
+            <input type="file" id="file-input" name="file" accept=".csv,.xlsx,.xls" style="display:none;" required/>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <button type="submit" class="btn btn-primary btn-lg">≡ Run Batch Scoring</button>
+            <a href="/demo" class="btn btn-demo">▷ Demo</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Results -->
+    {% if results %}
+    {% set total_b = results|length %}
+    {% set approve_n = results|selectattr('RiskTier','eq','Auto-Approve')|list|length %}
+    {% set review_n  = results|selectattr('RiskTier','eq','Manual Review')|list|length %}
+    {% set invest_n  = results|selectattr('RiskTier','eq','Investigate')|list|length %}
+
+    <div class="fade-up">
+      <div class="section-title">Batch Results — {{ total_b }} Claims Scored</div>
+
+      <div class="kpi-grid" style="margin-bottom:16px;">
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-header"><span class="kpi-label">Total Processed</span><div class="kpi-icon-wrap">≡</div></div>
+          <div class="kpi-value" data-count="{{ total_b }}">0</div>
+          <div class="kpi-sub">Claims in batch</div>
+        </div>
+        <div class="kpi-card kpi-green">
+          <div class="kpi-header"><span class="kpi-label">Auto-Approved</span><div class="kpi-icon-wrap">✓</div></div>
+          <div class="kpi-value" data-count="{{ approve_n }}">0</div>
+          <div class="kpi-sub">Score &lt; 30%</div>
+        </div>
+        <div class="kpi-card kpi-amber">
+          <div class="kpi-header"><span class="kpi-label">Manual Review</span><div class="kpi-icon-wrap">⚠</div></div>
+          <div class="kpi-value" data-count="{{ review_n }}">0</div>
+          <div class="kpi-sub">30% – 60%</div>
+        </div>
+        <div class="kpi-card kpi-red">
+          <div class="kpi-header"><span class="kpi-label">Investigate (FIU)</span><div class="kpi-icon-wrap">⚑</div></div>
+          <div class="kpi-value" data-count="{{ invest_n }}">0</div>
+          <div class="kpi-sub">Score ≥ 60%</div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:16px;">
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title"><span class="ct-dot" style="background:var(--blue)"></span>Tier Breakdown</span>
+            <span class="gap-tag">Gap 2</span>
+          </div>
+          <div class="card-body">
+            {% for name, count, color, bg in [
+              ('Auto-Approve',      approve_n, 'var(--green)', 'var(--green)'),
+              ('Manual Review',     review_n,  'var(--amber)', 'var(--amber)'),
+              ('Investigate (FIU)', invest_n,  'var(--red)',   'var(--red)'),
+            ] %}
+            {% set pct = ((count / total_b) * 100)|round(1) if total_b > 0 else 0 %}
+            <div class="tier-prog">
+              <div class="tier-prog-meta">
+                <span class="tier-prog-name" style="color:{{ color }};">{{ name }}</span>
+                <span class="tier-prog-count">{{ count }} <span style="color:var(--text-3);font-weight:400;font-family:'Inter';">({{ pct }}%)</span></span>
+              </div>
+              <div class="tier-prog-track">
+                <div class="tier-prog-fill" data-width="{{ pct }}" style="background:{{ bg }};"></div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title"><span class="ct-dot" style="background:var(--purple)"></span>Score Distribution</span></div>
+          <div class="card-body"><canvas id="batchPieChart" height="160"></canvas></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title"><span class="ct-dot" style="background:var(--blue)"></span>Claims Detail</span>
+          <span style="font-size:11px;color:var(--text-3);">{{ total_b }} records</span>
+        </div>
+        <div class="tbl-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>#</th><th>Claim Amount</th><th>Patient Age</th>
+                <th>Type</th><th>Specialty</th>
+                <th>Fraud Score</th><th>Risk Tier</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in results %}
+              <tr>
+                <td><strong>{{ loop.index }}</strong></td>
+                <td class="mono">${{ "%.2f"|format(row.get('ClaimAmount',0)) }}</td>
+                <td>{{ row.get('PatientAge','—') }}</td>
+                <td>{{ row.get('ClaimType','—') }}</td>
+                <td>{{ row.get('ProviderSpecialty','—') }}</td>
+                <td>
+                  <span class="mono" style="font-weight:700;
+                    {% if row['FraudProbability%'] >= 60 %}color:var(--red)
+                    {% elif row['FraudProbability%'] >= 30 %}color:var(--amber)
+                    {% else %}color:var(--green){% endif %};">
+                    {{ row['FraudProbability%'] }}%
+                  </span>
+                </td>
+                <td>
+                  {% if row['RiskTier'] == 'Auto-Approve' %}
+                    <span class="badge badge-green">✓ Auto-Approve</span>
+                  {% elif row['RiskTier'] == 'Manual Review' %}
+                    <span class="badge badge-amber">⚠ Manual Review</span>
+                  {% else %}
+                    <span class="badge badge-red">⚑ Investigate</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/static/js/main.js"></script>
+{% if results %}
+<script>
+const ctx = document.getElementById('batchPieChart');
+if (ctx) {
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Auto-Approve', 'Manual Review', 'Investigate'],
+      datasets: [{ data: [{{ approve_n }}, {{ review_n }}, {{ invest_n }}],
+        backgroundColor: ['rgba(34,197,94,0.8)', 'rgba(245,158,11,0.8)', 'rgba(239,68,68,0.8)'],
+        borderColor: ['#22C55E', '#F59E0B', '#EF4444'],
+        borderWidth: 1, hoverOffset: 4 }]
+    },
+    options: { cutout: '68%', plugins: { legend: { position: 'bottom' } } }
+  });
+}
+</script>
+{% endif %}
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FraudShield AI — Claim Predictor</title>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-badge">🛡</div>
+    <div class="logo-text"><h2>FraudShield AI</h2><p>Insurance Fraud Detection</p></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="/" class="nav-item"><span class="ni">▦</span> Dashboard</a>
+    <a href="/predict" class="nav-item active"><span class="ni">◎</span> Claim Predictor</a>
+    <a href="/batch" class="nav-item"><span class="ni">≡</span> Batch Analysis</a>
+    <a href="/analytics" class="nav-item"><span class="ni">∿</span> Model Analytics</a>
+    <div class="nav-label">Research Gaps</div>
+    <a href="/analytics#gap1" class="nav-item"><span class="ni">⊡</span> Multi-Metric Eval <span class="nav-badge">G1</span></a>
+    <a href="#gap2" class="nav-item"><span class="ni">⊙</span> 3-Tier Routing <span class="nav-badge">G2</span></a>
+    <a href="#gap3" class="nav-item"><span class="ni">⁂</span> SHAP Explain <span class="nav-badge">G3</span></a>
+    <div class="nav-label">Presentation</div>
+    <a href="/demo" class="nav-item nav-demo"><span class="ni">▷</span> Demo Mode</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="status-chip">
+      <div class="status-dot"></div>
+      <div class="status-text"><strong>Gap 2 + Gap 3</strong><span>3-Tier · SHAP Live</span></div>
+    </div>
+  </div>
+</aside>
+
+<div class="main-content">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Claim Fraud Predictor</h1>
+      <p>Enter claim details — AI scores risk and routes to the appropriate tier</p>
+    </div>
+    <div class="topbar-right">
+      <a href="/demo" class="btn btn-demo btn-sm">▷ Demo Mode</a>
+    </div>
+  </div>
+
+  <div class="page-body">
+
+    <!-- Gap 2 Tier Banner -->
+    <div id="gap2" style="margin-bottom:18px;" class="fade-up">
+      <div class="section-title">Gap 2 — Three-Tier Risk Routing Engine <span class="st-badge">Research Gap 2</span></div>
+      <div class="tier-row">
+        <div class="tier-box tier-green">
+          <div class="tb-head">
+            <div class="tier-status"></div>
+            <span class="tb-name">Tier 1 — Auto-Approve</span>
+          </div>
+          <div class="tb-range">Fraud Score &lt; 30%</div>
+          <div class="tb-theta">θ₁ = 0.30</div>
+          <div class="tb-desc">Genuine claim fast-tracked. No human delay. Policyholder satisfaction preserved.</div>
+        </div>
+        <div class="tier-box tier-amber">
+          <div class="tb-head">
+            <div class="tier-status"></div>
+            <span class="tb-name">Tier 2 — Manual Review</span>
+          </div>
+          <div class="tb-range">30% ≤ Fraud Score &lt; 60%</div>
+          <div class="tb-theta">θ₁ → θ₂</div>
+          <div class="tb-desc">Human adjuster reviews SHAP evidence. Claim not rejected automatically.</div>
+        </div>
+        <div class="tier-box tier-red">
+          <div class="tb-head">
+            <div class="tier-status"></div>
+            <span class="tb-name">Tier 3 — Investigate (FIU)</span>
+          </div>
+          <div class="tb-range">Fraud Score ≥ 60%</div>
+          <div class="tb-theta">θ₂ = 0.60</div>
+          <div class="tb-desc">Escalated to Fraud Investigation Unit with SHAP audit report.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="card fade-up-2">
+      <div class="card-head">
+        <span class="card-title"><span class="ct-dot" style="background:var(--blue)"></span>Claim Information</span>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="/predict">
+          <div class="form-grid" style="margin-bottom:14px;">
+            <div class="form-group">
+              <label class="form-label" for="ClaimID">Claim Reference ID</label>
+              <input id="ClaimID" class="form-control" name="ClaimID" type="text" placeholder="CLM-2024-001" value="{{ request.form.get('ClaimID','') }}"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ClaimAmount">Claim Amount ($)</label>
+              <input id="ClaimAmount" class="form-control" name="ClaimAmount" type="number" step="0.01" min="0" placeholder="7500.00" required value="{{ request.form.get('ClaimAmount','') }}"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="PatientAge">Patient Age</label>
+              <input id="PatientAge" class="form-control" name="PatientAge" type="number" min="0" max="120" placeholder="45" required value="{{ request.form.get('PatientAge','') }}"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="PatientIncome">Annual Income ($)</label>
+              <input id="PatientIncome" class="form-control" name="PatientIncome" type="number" step="0.01" min="0" placeholder="75000" required value="{{ request.form.get('PatientIncome','') }}"/>
+            </div>
+          </div>
+          <div class="form-grid" style="margin-bottom:14px;">
+            <div class="form-group">
+              <label class="form-label" for="PatientGender">Gender</label>
+              <select id="PatientGender" class="form-select" name="PatientGender" required>
+                <option value="">Select…</option>
+                {% for g in options.genders %}<option value="{{ g }}" {{'selected' if request.form.get('PatientGender')==g}}>{{ g }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="PatientMaritalStatus">Marital Status</label>
+              <select id="PatientMaritalStatus" class="form-select" name="PatientMaritalStatus" required>
+                <option value="">Select…</option>
+                {% for m in options.marital %}<option value="{{ m }}" {{'selected' if request.form.get('PatientMaritalStatus')==m}}>{{ m }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="PatientEmploymentStatus">Employment</label>
+              <select id="PatientEmploymentStatus" class="form-select" name="PatientEmploymentStatus" required>
+                <option value="">Select…</option>
+                {% for e in options.employment %}<option value="{{ e }}" {{'selected' if request.form.get('PatientEmploymentStatus')==e}}>{{ e }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ProviderSpecialty">Provider Specialty</label>
+              <select id="ProviderSpecialty" class="form-select" name="ProviderSpecialty" required>
+                <option value="">Select…</option>
+                {% for s in options.specialties %}<option value="{{ s }}" {{'selected' if request.form.get('ProviderSpecialty')==s}}>{{ s }}</option>{% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="form-grid" style="margin-bottom:14px;">
+            <div class="form-group">
+              <label class="form-label" for="ClaimType">Claim Type</label>
+              <select id="ClaimType" class="form-select" name="ClaimType" required>
+                <option value="">Select…</option>
+                {% for t in options.claim_types %}<option value="{{ t }}" {{'selected' if request.form.get('ClaimType')==t}}>{{ t }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ClaimStatus">Claim Status</label>
+              <select id="ClaimStatus" class="form-select" name="ClaimStatus" required>
+                <option value="">Select…</option>
+                {% for s in options.statuses %}<option value="{{ s }}" {{'selected' if request.form.get('ClaimStatus')==s}}>{{ s }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ClaimSubmissionMethod">Submission Method</label>
+              <select id="ClaimSubmissionMethod" class="form-select" name="ClaimSubmissionMethod" required>
+                <option value="">Select…</option>
+                {% for m in options.sub_methods %}<option value="{{ m }}" {{'selected' if request.form.get('ClaimSubmissionMethod')==m}}>{{ m }}</option>{% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="Cluster">Risk Cluster (0–3)</label>
+              <input id="Cluster" class="form-control" name="Cluster" type="number" min="0" max="3" required value="{{ request.form.get('Cluster','0') }}"/>
+            </div>
+          </div>
+          <div class="form-grid" style="margin-bottom:20px;">
+            <div class="form-group">
+              <label class="form-label" for="ClaimMonth">Claim Month (1–12)</label>
+              <input id="ClaimMonth" class="form-control" name="ClaimMonth" type="number" min="1" max="12" value="{{ request.form.get('ClaimMonth','7') }}" required/>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ClaimDayOfWeek">Day of Week (0=Mon)</label>
+              <input id="ClaimDayOfWeek" class="form-control" name="ClaimDayOfWeek" type="number" min="0" max="6" value="{{ request.form.get('ClaimDayOfWeek','0') }}" required/>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="ClaimYear">Claim Year</label>
+              <input id="ClaimYear" class="form-control" name="ClaimYear" type="number" min="2020" max="2030" value="{{ request.form.get('ClaimYear','2024') }}" required/>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="submit" class="btn btn-primary btn-lg">◎ Analyse Claim</button>
+            <a href="/predict" class="btn btn-ghost">↺ Clear</a>
+            <a href="/demo" class="btn btn-demo">▷ Run Demo</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Result -->
+    {% if result %}
+    <div class="fade-up" style="margin-top:4px;">
+      {% if result.get('error') %}
+      <div style="background:var(--red-dim);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius-sm);padding:12px 16px;color:#fca5a5;margin-top:16px;">
+        ⚠ Error: {{ result.error }}
+      </div>
+      {% else %}
+
+      <div class="result-block res-{{ result.tier.color }}">
+        <div class="result-header">
+          <div class="result-icon">{{ result.tier.icon }}</div>
+          <div>
+            <div class="result-label">{{ result.tier.tier }}</div>
+            <div class="result-sub">Claim {{ result.claim_id }} · AI-scored via XGBoost</div>
+          </div>
+          <div style="margin-left:auto;text-align:right;">
+            <div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;">Fraud Probability</div>
+            <div class="mono" style="font-size:26px;font-weight:800;margin-top:2px;
+              {% if result.tier.color=='green' %}color:var(--green)
+              {% elif result.tier.color=='amber' %}color:var(--amber)
+              {% else %}color:var(--red){% endif %};">
+              {{ result.prob }}%
+            </div>
+          </div>
+        </div>
+        <div class="result-body">
+          <div class="prob-bar-wrap">
+            <div class="prob-bar-labels">
+              <span>0% — Legitimate</span>
+              <span>θ₁ = 30%</span>
+              <span>θ₂ = 60%</span>
+              <span>100% — Fraud</span>
+            </div>
+            <div class="prob-bar-track">
+              <div id="prob-fill" class="prob-bar-fill" data-pct="{{ result.prob }}" style="width:0;"></div>
+            </div>
+          </div>
+          <div class="action-row">
+            <div>
+              <div class="action-label">Recommended Action</div>
+              <div class="action-text">{{ result.tier.action }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHAP -->
+      <div id="gap3" style="margin-top:20px;">
+        <div class="section-title">Gap 3 — SHAP Feature Explanation <span class="st-badge">Research Gap 3 · XAI</span></div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title"><span class="ct-dot" style="background:var(--purple)"></span>Feature Contributions — {{ result.claim_id }}</span>
+            <span class="gap-tag">SHAP TreeExplainer</span>
+          </div>
+          <div class="card-body">
+            <p style="font-size:12.5px;color:var(--text-3);margin-bottom:12px;line-height:1.7;">
+              Red bars = features pushing toward <strong style="color:var(--red)">fraud</strong>.
+              Blue/purple bars = features pushing toward <strong style="color:var(--blue)">legitimate</strong>.
+              This audit trail addresses Gap 3 — no adverse claim decision without explanation.
+            </p>
+            <div class="shap-container">
+              <img src="data:image/png;base64,{{ result.shap_img }}" alt="SHAP Explanation"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<script src="/static/js/main.js"></script>
+</body>
+</html>
