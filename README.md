@@ -18,6 +18,8 @@ Using a dataset of **4,500 records** with a severe **94:6 imbalance** (94% legit
 - 🛡️ **99.76% Genuine Claim Protection Rate (GCPR)**
 - ⚡ **Wrongful rejection of fewer than 0.24% of honest claims**
 
+📖 **Review 1 Documentation:** [Review 1 Comprehensive Research Report](Review_1_Comprehensive_Research_Report.md) (covers 10 curated studies, methodology, descriptive statistics, normality tests, analytical tool interpretation, experimental discussion, and future suggestions).
+
 This framework not only maximizes fraud capture but also protects policyholders, reduces operational delays, and builds customer trust by combining **XGBoost + SMOTE + Three-Tier Routing + SHAP**.
 
 ---
